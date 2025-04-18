@@ -30,3 +30,8 @@ if(NATIVELIFTERS_BUILD_TESTS)
     enable_testing()
     add_test(NAME NativeLifters-Tests COMMAND "$<TARGET_FILE:NativeLifters-Tests>")
 endif()
+
+
+# Include subprojects
+set(CMAKE_FOLDER "Plugins")
+add_subdirectory(IDA-Plugin)
