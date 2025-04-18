@@ -42,9 +42,9 @@ static void dump(const instruction& ins, const instruction* prev = nullptr)
 	// Print name
 	//
 	if (ins.is_volatile())
-		msg(VTIL_FMT_INS_MNM " ", ins.base->to_string(ins.access_size()));			// Volatile instruction
+		msg(VTIL_FMT_INS_MNM " ", ins.base->to_string(ins.access_size()).data());			// Volatile instruction
 	else
-		msg(VTIL_FMT_INS_MNM " ", ins.base->to_string(ins.access_size()));			// Non-volatile instruction
+		msg(VTIL_FMT_INS_MNM " ", ins.base->to_string(ins.access_size()).data());			// Non-volatile instruction
 
 	// Print each operand
 	//
@@ -53,11 +53,11 @@ static void dump(const instruction& ins, const instruction* prev = nullptr)
 		if (op.is_register())
 		{
 			if (op.reg().is_stack_pointer())
-				msg(VTIL_FMT_INS_OPR " ", op.reg());									// Stack pointer
+				msg(VTIL_FMT_INS_OPR " ", op.reg().to_string().data());									// Stack pointer
 			else if (op.reg().is_physical())
-				msg(VTIL_FMT_INS_OPR " ", op.reg());									// Any hardware/special register
+				msg(VTIL_FMT_INS_OPR " ", op.reg().to_string().data());									// Any hardware/special register
 			else
-				msg(VTIL_FMT_INS_OPR " ", op.reg());									// Virtual register
+				msg(VTIL_FMT_INS_OPR " ", op.reg().to_string().data());									// Virtual register
 		}
 		else
 		{
@@ -68,13 +68,13 @@ static void dump(const instruction& ins, const instruction* prev = nullptr)
 				ins.operands[ins.base->memory_operand_index].reg().is_stack_pointer())
 			{
 				if (op.imm().i64 >= 0)
-					msg(VTIL_FMT_INS_OPR " ", format::hex(op.imm().i64));			 // External stack
+					msg(VTIL_FMT_INS_OPR " ", format::hex(op.imm().i64).data());			 // External stack
 				else
-					msg(VTIL_FMT_INS_OPR " ", format::hex(op.imm().i64));			 // VM stack
+					msg(VTIL_FMT_INS_OPR " ", format::hex(op.imm().i64).data());			 // VM stack
 			}
 			else
 			{
-				msg(VTIL_FMT_INS_OPR " ", format::hex(op.imm().i64));				 // Any immediate
+				msg(VTIL_FMT_INS_OPR " ", format::hex(op.imm().i64).data());				 // Any immediate
 			}
 		}
 	}
@@ -101,9 +101,9 @@ static void dump(const basic_block* blk, std::set<const basic_block*>* visited =
 	msg("0x%llx\n", blk->entry_vip);
 	msg("Stack pointer:         ");
 	if (blk->sp_offset < 0)
-		msg("%s\n", format::hex(blk->sp_offset));
+		msg("%s\n", format::hex(blk->sp_offset).data());
 	else
-		msg("%s\n", format::hex(blk->sp_offset));
+		msg("%s\n", format::hex(blk->sp_offset).data());
 	msg("Already visited?:      ");
 	end_with_bool(blk_visited);
 	msg("------------------------\n");
@@ -138,13 +138,13 @@ static void dump(const basic_block* blk, std::set<const basic_block*>* visited =
 					{
 						auto dasm = amd64::disasm(bytes.data(), it->vip == invalid_vip ? 0 : it->vip, bytes.size());
 						for (auto& ins : dasm)
-							msg("; %s\n", ins);
+							msg("; %s\n", ins.to_string().data());
 					}
 					else
 					{
 						auto dasm = arm64::disasm(bytes.data(), it->vip == invalid_vip ? 0 : it->vip, bytes.size());
 						for (auto& ins : dasm)
-							msg("; %s\n", ins);
+							msg("; %s\n", ins.to_string().data());
 					}
 				}
 				no_disasm = true;
@@ -160,7 +160,7 @@ static void dump(const basic_block* blk, std::set<const basic_block*>* visited =
 		if (it->context.has<std::string>())
 		{
 			const std::string& cmt = it->context;
-			msg("// %s\n", cmt);
+			msg("// %s\n", cmt.data());
 
 			// Skip if nop.
 			//
@@ -212,7 +212,7 @@ class  optimization_handler : public action_handler_t
 
 		auto dasm = amd64::disasm(code.data(), 0, code.size());
 		for (auto& ins : dasm)
-			msg("%s\n", ins.to_string());
+			msg("%s\n", ins.to_string().data());
 
 		amd64_recursive_descent rec_desc(&input, 0);
 		rec_desc.entry->owner->routine_convention = amd64::default_call_convention;
