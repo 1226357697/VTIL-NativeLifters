@@ -191,6 +191,8 @@ void dump(const routine* routine)
 	dump(routine->entry_point, &vs);
 }
 
+#define VTIL_ACTION_OPTIMIZATION "Vtil:optimization"
+
 class  optimization_handler : public action_handler_t
 {
 	// Inherited via action_handler_t
@@ -254,7 +256,7 @@ public:
 			{
 				TPopupMenu* p = va_arg(va, TPopupMenu*);
 				Vtilplugmod* plgmod = (Vtilplugmod*)ud;
-				attach_action_to_popup(view, p, "Vtil:optimization");
+				attach_action_to_popup(view, p, VTIL_ACTION_OPTIMIZATION);
 			}
 		}
 		break;
@@ -270,7 +272,7 @@ public:
 		const action_desc_t actions[] =
 		{
 	#define ROW(name, label, handler) ACTION_DESC_LITERAL_PLUGMOD(name, label, handler, this, nullptr, nullptr, -1)
-			ROW("Vtil:optimization", "lifter vtil and optimization", &opt_handler),
+			ROW(VTIL_ACTION_OPTIMIZATION, "lifter vtil and optimization", &opt_handler),
 	#undef ROW
 		};
 
@@ -284,7 +286,10 @@ public:
 	virtual ~Vtilplugmod()
 	{
 		msg("MyPlugmod: Destructor called.\n");
-		unregister_action("Vtil:optimization");
+
+    unhook_from_notification_point(HT_UI, ui_callback, this);
+
+		unregister_action(VTIL_ACTION_OPTIMIZATION);
 	}
 
 	// Method that gets called when the plugin is activated
